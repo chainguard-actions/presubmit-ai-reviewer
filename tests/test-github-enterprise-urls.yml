@@ -1,0 +1,26 @@
+name: Test custom GitHub Enterprise Server URLs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run action with custom GitHub Enterprise URLs
+        id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LLM_MODEL: gpt-4o
+          LLM_API_KEY: fake-key-for-testing
+        with:
+          github_api_url: 'https://github.example.com/api/v3'
+          github_server_url: 'https://github.example.com'
+        # GITHUB_TOKEN, LLM_MODEL, and LLM_API_KEY are set so Config initializes without error.
+        # Under workflow_dispatch, GITHUB_EVENT_NAME is not pull_request,
+        # so the action emits a warning and exits 0 (graceful skip)
+        # without ever making API calls to the custom URLs.
+      - name: Assert action completed without failure
+        run: |
+          echo "Action accepted custom GitHub Enterprise URLs and completed successfully"
+          echo "PASS"

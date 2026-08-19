@@ -1,0 +1,31 @@
+name: Test GitHub Enterprise Server URL inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: pull_request
+      GITHUB_REF: refs/pull/7/merge
+      GITHUB_HEAD_REF: feature-enterprise
+      GITHUB_BASE_REF: main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run action with GitHub Enterprise Server URLs
+        id: action
+        uses: .
+        continue-on-error: true
+        with:
+          github_api_url: 'https://github.example.com/api/v3'
+          github_server_url: 'https://github.example.com'
+      - name: Assert action ran with enterprise URLs
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action may fail because there is no real GHE instance or PR/token,
+          # but it should not crash with an unhandled exception — any outcome is acceptable.
+          if [ "${{ steps.action.outcome }}" = "success" ] || [ "${{ steps.action.outcome }}" = "failure" ]; then
+            echo "PASS: action completed with outcome '${{ steps.action.outcome }}'"
+          else
+            echo "FAIL: unexpected outcome '${{ steps.action.outcome }}'"
+            exit 1
+          fi

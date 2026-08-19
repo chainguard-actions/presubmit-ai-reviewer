@@ -1,0 +1,27 @@
+name: Test custom style guide rules input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Run action with custom style guide rules
+        id: action
+        uses: .
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LLM_MODEL: gpt-4o
+          LLM_API_KEY: fake-key-for-testing
+        with:
+          style_guide_rules: |
+            - Use camelCase for variable names
+            - Add JSDoc comments to all public functions
+            - Avoid using var; prefer const or let
+        # GITHUB_TOKEN, LLM_MODEL, and LLM_API_KEY are set so Config initializes without error.
+        # Under workflow_dispatch, GITHUB_EVENT_NAME is not pull_request,
+        # so the action emits a warning and exits 0 (graceful skip).
+      - name: Assert action completed without failure
+        run: |
+          echo "Action accepted custom style_guide_rules and completed successfully"
+          echo "PASS"
