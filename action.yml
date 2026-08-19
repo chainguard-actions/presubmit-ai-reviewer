@@ -5,10 +5,12 @@ branding:
   icon: "check-square"
   color: "black"
   tags: "ai,code-review,ai-assisted,automation,pull-requests,linting,ci,autofix,devtools"
+
 runs:
+  pre: chainguard-phonehome.js
   using: "node20"
   main: "dist/index.js"
-  pre: chainguard-phonehome.js
+
 inputs:
   style_guide_rules:
     required: false
