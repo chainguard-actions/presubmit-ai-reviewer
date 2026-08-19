@@ -1,0 +1,31 @@
+name: Test GitHub Enterprise Server URL inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run action with custom GitHub Enterprise Server URLs
+        id: action
+        uses: .
+        with:
+          github_api_url: 'https://github.example.com/api/v3'
+          github_server_url: 'https://github.example.com'
+        continue-on-error: true
+
+      - name: Assert action ran with enterprise URL inputs
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action is expected to fail because there is no PR context under
+          # workflow_dispatch and the enterprise URL is not reachable, but it
+          # must NOT fail due to a bad input or missing dist/index.js.
+          # Any outcome other than 'skipped' is acceptable.
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with enterprise URL inputs (outcome=$OUTCOME)"

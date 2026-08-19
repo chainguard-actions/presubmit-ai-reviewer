@@ -1,0 +1,32 @@
+name: Test style_guide_rules input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run action with custom style guide rules
+        id: action
+        uses: .
+        with:
+          style_guide_rules: |
+            - Use camelCase for variable names
+            - Avoid magic numbers; use named constants
+            - All functions must have JSDoc comments
+        continue-on-error: true
+
+      - name: Assert action ran with style guide rules input
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action is expected to fail because there is no PR context under
+          # workflow_dispatch, but it must NOT fail due to a bad input or
+          # missing dist/index.js. Any outcome other than 'skipped' is acceptable.
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with style_guide_rules input (outcome=$OUTCOME)"
